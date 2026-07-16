@@ -90,8 +90,14 @@ public class WebSecurityConfig {
             "http://localhost:3000", "http://localhost:3001"
         ));
         
-        if (frontendUrl != null && !frontendUrl.trim().isEmpty()) {
-            String[] urls = frontendUrl.split(",");
+        String resolvedFrontendUrl = this.frontendUrl;
+        String envUrl = System.getenv("APP_FRONTEND_URL");
+        if (envUrl != null && !envUrl.trim().isEmpty()) {
+            resolvedFrontendUrl = envUrl;
+        }
+        
+        if (resolvedFrontendUrl != null && !resolvedFrontendUrl.trim().isEmpty()) {
+            String[] urls = resolvedFrontendUrl.split(",");
             for (String url : urls) {
                 String trimmed = url.trim();
                 if (trimmed.endsWith("/")) {
