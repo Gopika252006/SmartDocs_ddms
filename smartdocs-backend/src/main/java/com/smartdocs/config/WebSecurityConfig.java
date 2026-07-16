@@ -85,9 +85,10 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        List<String> origins = new ArrayList<>(Arrays.asList(
-            "http://localhost:5173", "http://localhost:5174", "http://localhost:5175",
-            "http://localhost:3000", "http://localhost:3001"
+        List<String> patterns = new ArrayList<>(Arrays.asList(
+            "http://localhost:*",
+            "https://*.vercel.app",
+            "http://127.0.0.1:*"
         ));
         
         String resolvedFrontendUrl = this.frontendUrl;
@@ -103,27 +104,27 @@ public class WebSecurityConfig {
                 if (trimmed.endsWith("/")) {
                     trimmed = trimmed.substring(0, trimmed.length() - 1);
                 }
-                if (!origins.contains(trimmed)) {
-                    origins.add(trimmed);
+                if (!patterns.contains(trimmed)) {
+                    patterns.add(trimmed);
                 }
                 // Also add HTTP/HTTPS equivalent to avoid protocol mismatch blocks
                 if (trimmed.startsWith("http://") && !trimmed.contains("localhost")) {
                     String httpsVer = "https://" + trimmed.substring(7);
-                    if (!origins.contains(httpsVer)) {
-                        origins.add(httpsVer);
+                    if (!patterns.contains(httpsVer)) {
+                        patterns.add(httpsVer);
                     }
                 } else if (trimmed.startsWith("https://")) {
                     String httpVer = "http://" + trimmed.substring(8);
-                    if (!origins.contains(httpVer)) {
-                        origins.add(httpVer);
+                    if (!patterns.contains(httpVer)) {
+                        patterns.add(httpVer);
                     }
                 }
             }
         }
         
-        System.out.println("[CORS Configuration] Allowed origins set to: " + origins);
+        System.out.println("[CORS Configuration] Allowed origin patterns set to: " + patterns);
         
-        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedOriginPatterns(patterns);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
         configuration.setExposedHeaders(Collections.singletonList("Authorization"));
