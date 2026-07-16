@@ -91,14 +91,31 @@ public class WebSecurityConfig {
         ));
         
         if (frontendUrl != null && !frontendUrl.trim().isEmpty()) {
-            String trimmed = frontendUrl.trim();
-            if (trimmed.endsWith("/")) {
-                trimmed = trimmed.substring(0, trimmed.length() - 1);
-            }
-            if (!origins.contains(trimmed)) {
-                origins.add(trimmed);
+            String[] urls = frontendUrl.split(",");
+            for (String url : urls) {
+                String trimmed = url.trim();
+                if (trimmed.endsWith("/")) {
+                    trimmed = trimmed.substring(0, trimmed.length() - 1);
+                }
+                if (!origins.contains(trimmed)) {
+                    origins.add(trimmed);
+                }
+                // Also add HTTP/HTTPS equivalent to avoid protocol mismatch blocks
+                if (trimmed.startsWith("http://") && !trimmed.contains("localhost")) {
+                    String httpsVer = "https://" + trimmed.substring(7);
+                    if (!origins.contains(httpsVer)) {
+                        origins.add(httpsVer);
+                    }
+                } else if (trimmed.startsWith("https://")) {
+                    String httpVer = "http://" + trimmed.substring(8);
+                    if (!origins.contains(httpVer)) {
+                        origins.add(httpVer);
+                    }
+                }
             }
         }
+        
+        System.out.println("[CORS Configuration] Allowed origins set to: " + origins);
         
         configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
