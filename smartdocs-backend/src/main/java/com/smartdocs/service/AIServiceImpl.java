@@ -54,7 +54,7 @@ public class AIServiceImpl implements AIService {
     @Autowired
     private DocumentAiMetadataRepository aiMetadataRepository;
 
-    private String selectedModel = "models/gemini-1.5-flash";
+    private String selectedModel = "models/gemini-2.5-flash";
 
     @jakarta.annotation.PostConstruct
     public void init() {
@@ -110,8 +110,8 @@ public class AIServiceImpl implements AIService {
             sortedCandidates.add(0, sanitizedConfig);
         }
 
-        if (!sortedCandidates.contains("models/gemini-1.5-flash")) {
-            sortedCandidates.add("models/gemini-1.5-flash");
+        if (!sortedCandidates.contains("models/gemini-2.5-flash")) {
+            sortedCandidates.add("models/gemini-2.5-flash");
         }
 
         System.out.println("[Gemini Discovery] Found " + sortedCandidates.size() + " candidate models to test.");
@@ -132,7 +132,7 @@ public class AIServiceImpl implements AIService {
         }
 
         if (!verified) {
-            String fallbackModel = "models/gemini-1.5-flash";
+            String fallbackModel = "models/gemini-2.5-flash";
             if (configModel != null && !configModel.trim().isEmpty()) {
                 fallbackModel = configModel.startsWith("models/") ? configModel : "models/" + configModel;
             }
