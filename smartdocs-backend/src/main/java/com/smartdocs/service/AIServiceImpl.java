@@ -115,6 +115,7 @@ public class AIServiceImpl implements AIService {
         }
 
         System.out.println("[Gemini Discovery] Found " + sortedCandidates.size() + " candidate models to test.");
+        boolean verified = false;
         for (String candidate : sortedCandidates) {
             System.out.println("[Gemini Discovery] Testing candidate model: " + candidate);
             this.selectedModel = candidate;
@@ -122,14 +123,22 @@ public class AIServiceImpl implements AIService {
                 boolean ok = testConnectionInternal(apiKey);
                 if (ok) {
                     System.out.println("[Gemini Discovery] Successful connection verified for model: " + candidate);
-                    return;
+                    verified = true;
+                    break;
                 }
             } catch (Exception e) {
                 System.err.println("[Gemini Discovery] Candidate model " + candidate + " failed connection check: " + e.getMessage());
             }
         }
 
-        System.err.println("[Gemini Discovery] WARNING: All tested candidates failed. Defaulting to: " + this.selectedModel);
+        if (!verified) {
+            String fallbackModel = "models/gemini-1.5-flash";
+            if (configModel != null && !configModel.trim().isEmpty()) {
+                fallbackModel = configModel.startsWith("models/") ? configModel : "models/" + configModel;
+            }
+            this.selectedModel = fallbackModel;
+            System.err.println("[Gemini Discovery] WARNING: All tested candidates failed. Defaulting to fallback: " + this.selectedModel);
+        }
     }
 
     private boolean testConnectionInternal(String apiKey) {
