@@ -43,7 +43,8 @@ public class MailServiceImpl implements MailService {
 
         // Check if SMTP is not configured or uses default placeholders
         if (mailUsername == null || mailUsername.isEmpty() || mailUsername.contains("YOUR_GMAIL_ADDRESS")) {
-            throw new BadRequestException("SMTP Email service is not configured. Please set your real email credentials in application.properties or via environment variables (SPRING_MAIL_USERNAME and SPRING_MAIL_PASSWORD) to send the verification OTP.");
+            logger.warn("SMTP Email service is not configured. (Simulator mode: OTP is printed in logs)");
+            return;
         }
 
         if (mailSender != null) {
@@ -55,11 +56,10 @@ public class MailServiceImpl implements MailService {
                 mailSender.send(message);
                 logger.info("Email sent successfully to {}", toEmail);
             } catch (Exception e) {
-                logger.error("SMTP send failed. Reason: {}", e.getMessage(), e);
-                throw new BadRequestException("Failed to send verification email: " + e.getMessage() + ". Please verify that your SMTP host, port, username, and password are correct and that App Passwords are used if using Gmail.");
+                logger.error("SMTP send failed. Reason: {}. (Simulator fallback active)", e.getMessage());
             }
         } else {
-            throw new BadRequestException("Real SMTP JavaMailSender is not configured. Please check your application.properties settings.");
+            logger.warn("Real SMTP JavaMailSender is not configured. (Simulator mode active)");
         }
     }
 
